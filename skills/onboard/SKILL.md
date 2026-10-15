@@ -13,7 +13,7 @@ Before resolving the workspace, check for legacy data at `~/.claude/adb-ops/`. I
 
 ## Workspace resolution
 
-Resolve the workspace directory as `$CLAUDE_USER_DATA/adb-ops/` if `CLAUDE_USER_DATA` is set; otherwise `$XDG_DATA_HOME/claude-plugins/adb-ops/` if `XDG_DATA_HOME` is set; otherwise `~/.local/share/claude-plugins/adb-ops/`. Create the directory if it doesn't exist. See the canonical convention in the `claude-rudder:plugin-data-storage` skill. Referred to as `<workspace>/` throughout this plugin.
+Resolve the workspace directory as `$CLAUDE_USER_DATA/adb-ops/` if `CLAUDE_USER_DATA` is set; otherwise `$XDG_DATA_HOME/claude-plugins/adb-ops/` if `XDG_DATA_HOME` is set; otherwise `~/.local/share/claude-plugins/adb-ops/`. Create the directory if it doesn't exist. See the canonical convention in the `rudder:plugin-data-storage` skill. Referred to as `<workspace>/` throughout this plugin.
 
 ## When to use
 

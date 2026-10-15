@@ -1,6 +1,6 @@
 # adb-ops workspace conventions
 
-All skills in this plugin read/write user state from a single workspace directory. The workspace resolves as `$CLAUDE_USER_DATA/adb-ops/` if `CLAUDE_USER_DATA` is set; otherwise `$XDG_DATA_HOME/claude-plugins/adb-ops/` if `XDG_DATA_HOME` is set; otherwise `~/.local/share/claude-plugins/adb-ops/`. Create the directory if it doesn't exist. See the canonical convention in the `claude-rudder:plugin-data-storage` skill.
+All skills in this plugin read/write user state from a single workspace directory. The workspace resolves as `$CLAUDE_USER_DATA/adb-ops/` if `CLAUDE_USER_DATA` is set; otherwise `$XDG_DATA_HOME/claude-plugins/adb-ops/` if `XDG_DATA_HOME` is set; otherwise `~/.local/share/claude-plugins/adb-ops/`. Create the directory if it doesn't exist. See the canonical convention in the `rudder:plugin-data-storage` skill.
 
 Shell form:
 
