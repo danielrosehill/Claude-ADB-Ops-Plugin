@@ -26,11 +26,12 @@ All user state lives under the `$CLAUDE_USER_DATA/adb-ops/` convention (fallback
 | `bloatware-log` | Browse the bloatware operation history |
 | `pull-folder` | Ad-hoc `adb pull` for paths not in mappings |
 | `push-folder` | Local-to-device transfer (mapping-driven or ad-hoc) |
+| `wireless-adb` | Pair over Wi-Fi (wireless debugging) and keep a host reconnecting automatically (systemd user units) |
 
 ## Requirements
 
 - `adb` installed on the host (Linux: `sudo apt install adb`, macOS: `brew install android-platform-tools`).
-- Phone with USB debugging enabled and authorised for this computer.
+- Phone with USB debugging enabled and authorised for this computer, or wireless debugging paired with it (`wireless-adb`; also needs `nmap`).
 
 ## Installation
 

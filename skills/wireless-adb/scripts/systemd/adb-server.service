@@ -1,0 +1,11 @@
+[Unit]
+Description=adb server (kept running so wireless connections persist)
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/adb server nodaemon
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

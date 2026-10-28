@@ -1,0 +1,9 @@
+[Unit]
+Description=Reconnect adb to the phone over Wi-Fi if it is reachable
+Requires=adb-server.service
+After=adb-server.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/adb-autoconnect
+SuccessExitStatus=1
