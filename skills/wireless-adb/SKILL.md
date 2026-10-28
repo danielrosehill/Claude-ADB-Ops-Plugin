@@ -88,9 +88,28 @@ systemctl --user enable --now adb-server.service adb-autoconnect.timer
 
 Verified 2026-10-28 on a OnePlus Nord 3 (CPH2493, Android 16) from an Ubuntu 26.04 server: paired, then the scan found the connect port and connected in one run.
 
-Optional, when a fixed port is wanted until the next reboot: once connected,
-`adb -s <IP>:<port> tcpip 5555`. adbd restarts on 5555 and the script finds it first. The
-port closes on reboot, and the scan takes over again.
+**Don't run `adb tcpip 5555` over a wireless-debugging connection.** On Android 16
+(OnePlus CPH2493, 2026-10-28) it switched wireless debugging off and 5555 never opened, so the
+host lost the phone until wireless debugging was turned back on by hand. `tcpip` is only safe
+over USB. `ADB_FIXED_PORT` stays in the config for phones put into tcpip mode that way.
+
+## Keep wireless debugging on without touching the phone
+
+Pairing is permanent: the phone keeps the host's key until "Revoke USB debugging
+authorisations" is used. Unless "Disable adb authorisation timeout" is on in Developer
+options, Android revokes keys unused for 7 days (`settings get global
+adb_allowed_connection_time` returns `0` when the timeout is off).
+
+What does have to come back is wireless debugging itself, which Android switches off when the
+phone leaves the Wi-Fi network. Let an automation app on the phone switch it back on:
+
+1. While connected, grant the app permission to write secure settings (Tasker shown):
+   `adb shell pm grant net.dinglisch.android.taskerm android.permission.WRITE_SECURE_SETTINGS`
+   (MacroDroid: `com.arlosoft.macrodroid`).
+2. On the phone, Tasker profile: **State → Net → Wifi Connected**, SSID = the home network.
+3. Task: **Settings → Custom Setting**, Type `Global`, Name `adb_wifi_enabled`, Value `1`.
+
+The host's timer then reconnects within 2 minutes.
 
 ## Use from another machine
 
