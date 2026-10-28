@@ -13,18 +13,20 @@ ADB_PORT_RANGE="${ADB_PORT_RANGE:-30000-49999}"
 STATE="$WS/network-state.json"
 
 log() { echo "adb-autoconnect: $*"; }
+# Probing non-adb ports can leave "offline" entries behind; drop them.
+prune() { adb devices | awk -v h="$ADB_HOST:" 'index($1,h)==1 && $2=="offline"{print $1}' | while read -r d; do timeout 3 adb disconnect "$d" >/dev/null 2>&1; done; }
 connected() { adb devices | awk -v h="$ADB_HOST:" 'index($1,h)==1 && $2=="device"{f=1} END{exit !f}'; }
 try() {
   local out
   out=$(timeout 6 adb connect "$ADB_HOST:$1" 2>&1)
   case "$out" in
-    *"connected to"*) sleep 1; connected && { log "connected on port $1"; printf '{"host":"%s","port":%s,"at":"%s"}\n' "$ADB_HOST" "$1" "$(date -Is)" > "$STATE"; return 0; } ;;
+    *"connected to"*) sleep 1; connected && { prune; log "connected on port $1"; printf '{"host":"%s","port":%s,"at":"%s"}\n' "$ADB_HOST" "$1" "$(date -Is)" > "$STATE"; return 0; } ;;
   esac
   timeout 3 adb disconnect "$ADB_HOST:$1" >/dev/null 2>&1
   return 1
 }
 
-connected && exit 0
+connected && { prune; exit 0; }
 ping -c1 -W2 "$ADB_HOST" >/dev/null 2>&1 || exit 0   # phone not on the LAN; nothing to do
 
 # 1. fixed port (only open after `adb tcpip`), 2. last port that worked, 3. scan the range
@@ -35,5 +37,6 @@ for p in $(nmap -Pn -n -T4 --min-rate 3000 -p "$ADB_PORT_RANGE" --open -oG - "$A
   [ "$p" = "$last" ] && continue
   try "$p" && exit 0
 done
+prune
 log "phone at $ADB_HOST is up but no port accepted adb (wireless debugging off, or this host not paired)"
 exit 1

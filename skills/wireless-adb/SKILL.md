@@ -86,6 +86,8 @@ systemctl --user enable --now adb-server.service adb-autoconnect.timer
 - Run pairing **after** `adb-server.service` is up, as the same user, so the key and the
   connection belong to that server.
 
+Verified 2026-10-28 on a OnePlus Nord 3 (CPH2493, Android 16) from an Ubuntu 26.04 server: paired, then the scan found the connect port and connected in one run.
+
 Optional, when a fixed port is wanted until the next reboot: once connected,
 `adb -s <IP>:<port> tcpip 5555`. adbd restarts on 5555 and the script finds it first. The
 port closes on reboot, and the scan takes over again.
