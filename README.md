@@ -27,11 +27,13 @@ All user state lives under the `$CLAUDE_USER_DATA/adb-ops/` convention (fallback
 | `pull-folder` | Ad-hoc `adb pull` for paths not in mappings |
 | `push-folder` | Local-to-device transfer (mapping-driven or ad-hoc) |
 | `wireless-adb` | Pair over Wi-Fi (wireless debugging) and keep a host reconnecting automatically (systemd user units) |
+| `pair-qr` | Show a QR code on the host for the phone to scan, then pair and connect over Wi-Fi |
 
 ## Requirements
 
 - `adb` installed on the host (Linux: `sudo apt install adb`, macOS: `brew install android-platform-tools`).
 - Phone with USB debugging enabled and authorised for this computer, or wireless debugging paired with it (`wireless-adb`; also needs `nmap`).
+- For `pair-qr`: `qrencode`, and `avahi-utils` for reliable mDNS discovery.
 
 ## Installation
 

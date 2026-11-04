@@ -37,7 +37,8 @@ The script writes `<workspace>/network-state.json` with the last port that worke
 
 ## Pair a host (once per host)
 
-Needs the user at the phone:
+Needs the user at the phone. If the host has a screen, prefer the QR route (`pair-qr` skill).
+With a pairing code instead:
 
 1. Ask the user to open Wireless debugging → **Pair device with pairing code** and keep that
    dialog open. It shows a 6-digit code and an `IP:port`. The pairing port differs from the
