@@ -5,15 +5,18 @@
 # and advertises _adb-tls-pairing._tcp under that name. The host finds that service and runs
 # `adb pair`, the same flow as Android Studio's "Pair devices using Wi-Fi".
 #
-# Usage: adb-pair-qr.sh [--timeout SECONDS] [--no-open] [--name NAME]
+# The QR is printed as text. Nothing else opens unless --open asks for an image viewer (--no-open is the default, kept for old callers).
+#
+# Usage: adb-pair-qr.sh [--timeout SECONDS] [--open] [--name NAME]
 # Exit:  0 paired and connected, 1 phone never appeared or pairing failed,
 #        2 missing dependency or bad argument, 3 paired but not connected
 set -u
 
-TIMEOUT=120 OPEN=1 NAME=""
+TIMEOUT=120 OPEN=0 NAME=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --timeout) TIMEOUT="${2:?--timeout needs a value}"; shift 2 ;;
+    --open)    OPEN=1; shift ;;
     --no-open) OPEN=0; shift ;;
     --name)    NAME="${2:?--name needs a value}"; shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
@@ -38,12 +41,11 @@ rand() { LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c "$1"; }
 PASSWORD="$(rand 16)"
 PAYLOAD="WIFI:T:ADB;S:$NAME;P:$PASSWORD;;"
 
-PNG="${XDG_RUNTIME_DIR:-/tmp}/adb-pair-qr-$$.png"
-trap 'rm -f "$PNG"' EXIT
-qrencode -o "$PNG" -s 10 -m 4 "$PAYLOAD" || exit 2
-
-if [ -t 1 ]; then qrencode -t ANSIUTF8 -m 2 "$PAYLOAD"; else qrencode -t UTF8 -m 2 "$PAYLOAD"; fi
+if [ -t 1 ]; then qrencode -t ANSIUTF8 -m 2 "$PAYLOAD" || exit 2; else qrencode -t UTF8 -m 2 "$PAYLOAD" || exit 2; fi
 if [ "$OPEN" = 1 ] && { [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; } && command -v xdg-open >/dev/null; then
+  PNG="${XDG_RUNTIME_DIR:-/tmp}/adb-pair-qr-$$.png"
+  trap 'rm -f "$PNG"' EXIT
+  qrencode -o "$PNG" -s 10 -m 4 "$PAYLOAD" || exit 2
   xdg-open "$PNG" >/dev/null 2>&1 &
   log "QR code opened in an image viewer: $PNG"
 fi
@@ -84,13 +86,13 @@ started=$SECONDS
 last_scan=0
 while [ "$SECONDS" -lt "$deadline" ] && [ -z "$PHONE_IP" ]; do
   for target in $(discover _adb-tls-pairing._tcp "$NAME"); do
-    pair "$target" && { PHONE_IP="${target%:*}"; break; }
+    pair "$target" && { PHONE_IP="${target%:*}"; log "found by mDNS"; break; }
   done
   # mDNS may not reach this host (wired host, Wi-Fi phone). With a known phone IP, probe its ports.
   if [ -z "$PHONE_IP" ] && [ -n "$ADB_HOST" ] && [ $((SECONDS - started)) -ge 20 ] && [ $((SECONDS - last_scan)) -ge 15 ]; then
     last_scan=$SECONDS
     for port in $(open_ports "$ADB_HOST"); do
-      pair "$ADB_HOST:$port" && { PHONE_IP="$ADB_HOST"; break; }
+      pair "$ADB_HOST:$port" && { PHONE_IP="$ADB_HOST"; log "found by port scan of ADB_HOST"; break; }
     done
   fi
   [ -n "$PHONE_IP" ] || sleep 2
