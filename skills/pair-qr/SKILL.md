@@ -51,7 +51,7 @@ echo 'ADB_HOST=10.0.0.52' > ~/.cache/adb-ops/network.env
 ADB_OPS_NETWORK_CONF=$HOME/.cache/adb-ops/network.env <skill-dir>/scripts/adb-pair-qr.sh --timeout 180
 ```
 
-Household phone IPs are in `devices.json` in the `android-phone-manager` plugin.
+Household phone IPs are in `android/devices.json` in the private `endpoint-management` plugin (repo `danielrosehill/Endpoint-Management`).
 
 Options: `--timeout SECONDS` (default 120), `--open` (also show a PNG in the default image viewer, only if the user asks),
 `--name NAME` (fixed service name, for testing). `--no-open` is accepted and does nothing.
