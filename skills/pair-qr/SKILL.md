@@ -5,6 +5,10 @@ description: Pair adb with an Android phone by QR code. Generates a QR code, sho
 
 # adb-ops: pair-qr
 
+## 1. Load your settings
+
+Read `pair-qr.md` from `$CLAUDE_USER_DATA/adb-ops/`, else `~/.claude-user-data/adb-ops/`, if it exists; its notes win over the defaults below.
+
 Needs Android 11+, the phone and host on the same network, and `qrencode` on the host
 (Debian/Ubuntu package `qrencode`). `avahi-utils` is recommended: `adb mdns services` alone can
 miss the phone. `nmap` enables the fallbacks below.
@@ -23,7 +27,7 @@ Pairing happens once per host. After that, `adb connect` needs no code (see `wir
 
 ## Run it
 
-The QR goes in your reply, as text. Nothing opens on the desktop: a viewer window is unwanted (Daniel, 2026-11-05), and tool
+The QR goes in your reply, as text. Nothing opens on the desktop: a viewer window is unwanted, and tool
 output may not reach the user's screen, so the reply is what they scan.
 
 1. Tell the user what to do on the phone, because the script is already waiting once it starts:
