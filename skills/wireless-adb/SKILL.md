@@ -28,12 +28,19 @@ network's Wi-Fi privacy to the device MAC if the reservation keeps missing.
 `<workspace>`):
 
 ```bash
-ADB_HOST=10.0.0.52          # the phone's reserved IP
+ADB_HOSTS="10.0.0.52 10.0.0.119"  # the phones' reserved IPs (a pool); each one is tried in turn
+ADB_HOST=10.0.0.52          # single-phone form; used when ADB_HOSTS is unset. pair-qr reads it for its port-scan fallback
 ADB_FIXED_PORT=5555         # used after `adb tcpip 5555`; harmless if closed
 ADB_PORT_RANGE=30000-49999  # where wireless debugging puts its connect port
 ```
 
-The script writes `<workspace>/network-state.json` with the last port that worked.
+The script writes `<workspace>/network-state-<ip>.json` per phone with the last port that worked
+(an old single `network-state.json` is renamed on first run). Exit 1 means at least one phone was on the
+LAN but no port accepted adb. A phone that is off the LAN is skipped quietly.
+
+**Add a phone to the pool:** pair this host with it once (`pair-qr`, run *on this host*, or the pairing
+code route below), give it a DHCP reservation, and append its IP to `ADB_HOSTS`. The timer picks it up on
+its next run.
 
 ## Pair a host (once per host)
 

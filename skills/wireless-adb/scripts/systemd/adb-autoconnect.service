@@ -1,5 +1,5 @@
 [Unit]
-Description=Reconnect adb to the phone over Wi-Fi if it is reachable
+Description=Reconnect adb to the phones in ADB_HOSTS over Wi-Fi when reachable
 Requires=adb-server.service
 After=adb-server.service
 
