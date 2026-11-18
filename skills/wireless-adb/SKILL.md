@@ -32,6 +32,7 @@ ADB_HOSTS="10.0.0.52 10.0.0.119"  # the phones' reserved IPs (a pool); each one 
 ADB_HOST=10.0.0.52          # single-phone form; used when ADB_HOSTS is unset. pair-qr reads it for its port-scan fallback
 ADB_FIXED_PORT=5555         # used after `adb tcpip 5555`; harmless if closed
 ADB_PORT_RANGE=30000-49999  # where wireless debugging puts its connect port
+ADB_AUTOPIN_HOSTS=""        # optional: phones to move onto ADB_FIXED_PORT (`adb tcpip`) right after a random-port connect
 ```
 
 The script writes `<workspace>/network-state-<ip>.json` per phone with the last port that worked
@@ -96,10 +97,20 @@ systemctl --user enable --now adb-server.service adb-autoconnect.timer
 
 Verified 2026-10-28 on a OnePlus Nord 3 (CPH2493, Android 16) from an Ubuntu 26.04 server: paired, then the scan found the connect port and connected in one run.
 
-**Don't run `adb tcpip 5555` over a wireless-debugging connection.** On Android 16
-(OnePlus CPH2493, 2026-10-28) it switched wireless debugging off and 5555 never opened, so the
-host lost the phone until wireless debugging was turned back on by hand. `tcpip` is only safe
-over USB. `ADB_FIXED_PORT` stays in the config for phones put into tcpip mode that way.
+**`adb tcpip 5555` over a wireless-debugging connection: mixed results, so it is opt-in.** On
+2026-10-28 (OnePlus CPH2493, Android 16) it switched wireless debugging off and 5555 never opened, so
+the host lost the phone until wireless debugging was turned back on by hand. On 2026-11-18, on the
+same model (build `CPH2493_16.0.5.1001(EX01)`), it worked: 5555 opened, and the 5555 connection stayed
+`device` with `adb_wifi_enabled` set to 0. The cause of the difference is unknown. A 5555 pin lasts
+until reboot.
+
+`ADB_AUTOPIN_HOSTS` lists phones the script re-pins automatically: after connecting on a random port
+it runs `tcpip $ADB_FIXED_PORT` and reconnects on that port (it retries for about 12 s, then logs and
+waits). Only list a phone where `tcpip` over wireless was tested to work **and** something on the
+phone turns wireless debugging back on if the pin fails. Otherwise a failed pin loses the phone until
+someone toggles wireless debugging by hand. A Tasker profile works well for this: every 10
+min it reads `adb_wifi_enabled`, and if it is 0 and an HTTP GET to the home server returns the
+expected page, it sets it back to 1 (Tasker needs `pm grant <tasker pkg> android.permission.WRITE_SECURE_SETTINGS`; Location is not needed, unlike Tasker's Wifi Connected state, which did not fire with Location off in testing on Android 16, with or without an SSID or IP filter).
 
 ## Keep wireless debugging on without touching the phone
 
